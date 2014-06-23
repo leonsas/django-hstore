@@ -735,6 +735,13 @@ class TestModeledDictionary(TestCase):
             }
         })
     
+    def _login_as_admin(self):
+        # create admin user
+        admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
+        admin.set_password('tester')
+        admin.save()
+        # login as admin
+        self.client.login(username='admin', password='tester')
     
     def test_model_validation(self):
         # no model at all raises exception
@@ -846,6 +853,30 @@ class TestModeledDictionary(TestCase):
     
     def test_specific_model_field(self):
         d = ModeledDataBag()
+    
+    def test_admin_list(self):
+        self._login_as_admin()
+        url = reverse('admin:django_hstore_tests_modeleddatabag_changelist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_admin_add(self):
+        self._login_as_admin()
+        url = reverse('admin:django_hstore_tests_modeleddatabag_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_admin_change(self):
+        self._login_as_admin()
+        d = ModeledDataBag.objects.create(pk=1, name='test1', data={ 'number': 1 })
+        url = reverse('admin:django_hstore_tests_modeleddatabag_change', args=[1])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.client.post(url, { 'number': 2 })
+        self.assertEqual(response.status_code, 200)
+        d = ModeledDataBag.objects.get(pk=1)
+        self.assertEqual(d.data['number'], 2)
 
 
 if GEODJANGO:

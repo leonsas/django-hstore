@@ -37,15 +37,19 @@ class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField()
 
+from django_hstore.virtual import VirtualField
 
 class ModeledDataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.ModeledDictionaryField(schema={
-        'number': {
-            'type': int,
-            'default': 0
-        }
-    })
+    #data = hstore.ModeledDictionaryField(schema={
+    #    'number': {
+    #        'type': int,
+    #        'default': 0
+    #    }
+    #})
+    data = hstore.DictionaryField()
+    
+    number = VirtualField(hstore_field_name='data')
 
 
 class NullableDataBag(HStoreModel):

@@ -7,7 +7,7 @@ class DataBagAdmin(admin.ModelAdmin):
 
 
 class ModeledDataBagAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['data']
 
 
 class DefaultsInlineAdmin(admin.StackedInline):
