@@ -8,21 +8,17 @@ __all__ = [
 ]
 
 
-class HStoreDescriptor(models.fields.subclassing.Creator):
+class HStoreDescriptor(models.fields.subclassing.Creator):    
+    _dict_class = HStoreDict
+    
     def __set__(self, obj, value):
         value = self.field.to_python(value)
         if isinstance(value, dict):
-            value = HStoreDict(
+            value = self._dict_class(
                 value=value, field=self.field, instance=obj
             )
         obj.__dict__[self.field.name] = value
 
 
-class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
-    def __set__(self, obj, value):
-        value = self.field.to_python(value)
-        if isinstance(value, dict):
-            value = HStoreReferenceDictionary(
-                value=value, field=self.field, instance=obj
-            )
-        obj.__dict__[self.field.name] = value
+class HStoreReferenceDescriptor(HStoreDescriptor):
+    _dict_class = HStoreReferenceDictionary
