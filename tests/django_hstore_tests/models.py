@@ -41,13 +41,16 @@ from django_hstore.virtual import VirtualField
 
 class ModeledDataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    #data = hstore.ModeledDictionaryField(schema={
-    #    'number': {
-    #        'type': int,
-    #        'default': 0
-    #    }
-    #})
-    data = hstore.DictionaryField()
+    data = hstore.ModeledDictionaryField(schema={
+        'number': {
+            'type': int,
+            'default': 0
+        }
+    })
+    # the ModeledDictionaryField should create the virtual fields automatically
+    # each created virtualfield should be initialized with an on the fly created (metaprogramming)
+    # virtual field which should be the result of for example IntegerField and VirtualFieldMixin
+    # validation should be handled by the VirtualField only, no HStoreModelValidation shit
     
     number = VirtualField(hstore_field_name='data')
 

@@ -149,7 +149,8 @@ class HStoreModeledDictionary(HStoreDict):
     
     def __init__(self, value=None, field=None, instance=None, connection=None, schema=None, **kwargs):
         self.schema = self.validate_schema(schema)
-        super(HStoreModeledDictionary, self).__init__(**kwargs)
+        super(HStoreModeledDictionary, self).__init__(value=value, field=field, instance=instance,
+                                                      connection=connection, **kwargs)
     
     def __setitem__(self, *args, **kwargs):
         """
@@ -170,6 +171,9 @@ class HStoreModeledDictionary(HStoreDict):
             return pickle.loads(value)
         except KeyError as e:
             return self._get_default_for_key(args[0])
+        # pickle error
+        except IndexError:
+            return str(value)
     
     def _get_default_for_key(self, key):
         """ returns the default value for the specified key """
@@ -225,11 +229,19 @@ class HStoreModeledDictionary(HStoreDict):
             raise exceptions.HStoreModelException('%s is not a valid key' % key)
         return key
     
-    def ensure_acceptable_value(self, key, value):
+    def ensure_acceptable_value(self, key, value=None):
         """
         ensure specified value is valid
         """
-        if type(value) is not self.schema[key]['type']:
+        # really sucks!
+        if value is None:
+            return super(HStoreModeledDictionary, self).ensure_acceptable_value(key)
+        
+        # shortcut
+        expected_type = self.schema[key]['type']
+        
+        # if value is not the expected type
+        if type(value) is not expected_type:
             raise exceptions.HStoreModelException(
                 '%s is not a valid type for key %s, type %s expected' % (
                     value, key, self.schema[key]['type']

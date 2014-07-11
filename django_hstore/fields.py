@@ -98,6 +98,10 @@ class ModeledDictionaryField(DictionaryField):
     
     _dict_class = HStoreModeledDictionary
     
+    def contribute_to_class(self, cls, name):
+        super(HStoreField, self).contribute_to_class(cls, name)
+        setattr(cls, self.name, HStoreModeledDescriptor(self, schema=self.schema))
+    
     def _init_dict_class(self, value):
         return self._dict_class(value=value, field=self, schema=self.schema)
     

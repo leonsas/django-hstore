@@ -851,8 +851,45 @@ class TestModeledDictionary(TestCase):
         with self.assertRaises(HStoreModelException):
             field = hstore.ModeledDictionaryField()
     
-    def test_specific_model_field(self):
+    def save_and_get_basic_behaviour(self, ):
         d = ModeledDataBag()
+        d.data['number'] = 4
+        d.save()
+        d = ModeledDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.data['number'], 4)
+    
+    def test_getter(self):
+        d = ModeledDataBag()
+        
+        # expect default
+        self.assertEqual(d.number, 0)
+        
+        d.data['number'] = 3
+        self.assertEqual(d.number, 3)
+    
+    def test_setter(self, ):
+        d = ModeledDataBag()
+        
+        d.number = 10
+        self.assertEqual(d.data['number'], 10)
+    
+    def test_save_and_get_desired_behaviour(self):
+        d = ModeledDataBag()
+        
+        d.number = 4
+        d.save()
+        
+        d = ModeledDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.data['number'], 4)
+    
+    def test_typecasting(self):
+        d = ModeledDataBag()
+        
+        d.number = '4'
+        d.save()
+        
+        d = ModeledDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.data['number'], 4)
     
     def test_admin_list(self):
         self._login_as_admin()

@@ -279,14 +279,32 @@ class VirtualField(Field):
     #    if self.verbose_name is None and self.name:
     #        self.verbose_name = self.name.replace('_', ' ')
     
-    @property
-    def unique(self):
-        return False
+    #@property
+    #def unique(self):
+    #    return False
     
     def contribute_to_class(self, cls, name, virtual_only=True):
         super(VirtualField, self).contribute_to_class(cls, name, virtual_only)
+        
         # Connect myself as the descriptor for this field
-        #setattr(cls, self.hstore_field_name, self)
+        setattr(cls, name, self)
+    
+    # begin descriptor methods
+    
+    def __get__(self, instance, instance_type=None):
+        """
+        retrieve value from hstore dictionary
+        """
+        return getattr(instance, self.hstore_field_name).get(self.name)
+    
+    def __set__(self, instance, value):
+        """
+        set value on hstore dictionary
+        """
+        hstore_dictionary = getattr(instance, self.hstore_field_name)
+        hstore_dictionary[self.name] = value
+    
+    # end descriptor methods
     
     def value_from_object(self, obj):
         """
